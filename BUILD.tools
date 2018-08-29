@@ -1,0 +1,5 @@
+custom_scala_dependencies(
+  version='2.12.6',
+  with_reflect=True,
+  with_scalap=True,
+)

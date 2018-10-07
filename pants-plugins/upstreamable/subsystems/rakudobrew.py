@@ -42,25 +42,32 @@ class Rakudobrew(Script):
     ]
 
   def _run_rakudobrew_command(self, argv):
-    tool_path_env_var = create_path_env_var(self.path_entries)
+    subproc_env = os.environ.copy()
+    subproc_env['PATH'] = create_path_env_var(self.path_entries, subproc_env, prepend=True)
+
     all_argv = ['rakudobrew'] + argv
     pretty_printed_argv = safe_shlex_join(all_argv)
     try:
       return subprocess.check_output(
         all_argv,
-        env={'PATH': tool_path_env_var})
+        env=subproc_env)
     except (OSError, subprocess.CalledProcessError) as e:
       raise self.RakudoBrewBootstrapError(
         "Error with rakudobrew command '{}': {}"
         .format(pretty_printed_argv, e),
         e)
 
+  def install_zef(self):
+    output = self._run_rakudobrew_command(['build', 'zef'])
+    logger.info("output from installing zef:\n{}".format(output))
+
   def switch_tool(self, tool_name, version):
     """We'll want to do this for our moar subsystem."""
     known_dirname = '{}-{}'.format(tool_name, version)
     # This is a fast command to run on no-op.
     output = self._run_rakudobrew_command(['switch', known_dirname])
-    logger.debug("output from switching to configuration '{}'".format(known_dirname))
+    logger.debug("output from switching to configuration '{}':\n{}"
+                 .format(known_dirname, output))
 
   def build_tool_into(self, tool_name, version):
     known_dirname = '{}-{}'.format(tool_name, version)

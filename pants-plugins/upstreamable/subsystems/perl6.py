@@ -27,7 +27,7 @@ class Perl6(Subsystem):
 
   def _get_perl6_subproc_os_env(self, perl6_env):
     # NB: These are assumed to have been de-duped.
-    source_lib_containing_dirs = perl6_env.source_lib_entries.containing_lib_dirs
+    source_lib_containing_dirs = list(perl6_env.source_lib_entries.containing_lib_dirs)
     # If no zef resolve occurred, this will be None.
     if perl6_env.zef_resolve_result:
       # NB: put the thirdparty resolve at the end.
@@ -35,7 +35,7 @@ class Perl6(Subsystem):
     else:
       zef_specs = []
 
-    all_lib_entries = list(source_lib_containing_dirs) + zef_specs
+    all_lib_entries = source_lib_containing_dirs + zef_specs
     perl6lib_joined = ensure_binary(self.PERL6LIB_SEP.join(map(ensure_binary, all_lib_entries)))
 
     full_path_var = create_path_env_var(self._rakudo_moar.path_entries, os.environ.copy(),

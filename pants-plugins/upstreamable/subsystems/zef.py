@@ -7,6 +7,7 @@ import os
 from future.utils import binary_type
 
 from pants.base.workunit import WorkUnitLabel
+from pants.binaries.binary_tool import Script
 from pants.invalidation.cache_manager import VersionedTargetSet
 from pants.subsystem.subsystem import Subsystem
 from pants.util.dirutil import is_writable_dir, safe_mkdir
@@ -16,20 +17,30 @@ from pants.util.process_handler import subprocess
 from pants.util.strutil import create_path_env_var, safe_shlex_join
 
 from upstreamable.subsystems.rakudo_moar import RakudoMoar
+from upstreamable.subsystems.rakudobrew import Rakudobrew
 from upstreamable.targets.zef_requirement_library import PERL6_INSTALL_DIR_PREFIX
 
 
 logger = logging.getLogger(__name__)
 
 
-class Zef(Subsystem):
+class Zef(Script):
   options_scope = 'zef'
+
+  default_version = '0.5.3'
+
+  class ZefException(Exception): pass
 
   @classmethod
   def subsystem_dependencies(cls):
-    return super(Zef, cls).subsystem_dependencies() + (RakudoMoar.scoped(cls),)
+    return super(Zef, cls).subsystem_dependencies() + (
+      RakudoMoar.scoped(cls),
+      Rakudobrew.scoped(cls),
+    )
 
-  class ZefException(Exception): pass
+  @memoized_property
+  def _rakudobrew(self):
+    return Rakudobrew.scoped_instance(self)
 
   @memoized_property
   def _rakudo_moar(self):
@@ -40,6 +51,9 @@ class Zef(Subsystem):
   @memoized_property
   def _bin_dir(self):
     maybe_bin_install_dir = os.path.join(self._rakudo_moar.select(), 'install/share/perl6/site/bin')
+    if 0 == len(os.listdir(maybe_bin_install_dir)):
+      # This is an empty directory -- we need to bootstrap zef.
+      self._rakudobrew.install_zef()
     exe_filenames = os.listdir(maybe_bin_install_dir)
     if self._executable_filename not in exe_filenames:
       raise self.ZefException(
@@ -74,13 +88,14 @@ class Zef(Subsystem):
       # NB: See https://github.com/ugexe/zef for more info.
       return '{}{}'.format(PERL6_INSTALL_DIR_PREFIX, self.into_dir)
 
-  class ZefInstallResult(datatype([('install_spec', binary_type)])): pass
+  class ZefInstallResult(datatype([('install_spec', binary_type)])):
+
+    def __new__(cls, install_spec):
+      return super(Zef.ZefInstallResult, cls).__new__(cls, binary_type(install_spec))
 
   @memoized_property
   def path_entries(self):
-    return [
-      self._bin_dir,
-    ] + self._rakudo_moar.path_entries
+    return [self._bin_dir] + self._rakudo_moar.path_entries
 
   def resolve(self, workdir, invalidation_check, workunit_factory):
     # Install all of the resolve specs at once, into a single dir which has a name determined by
@@ -91,7 +106,7 @@ class Zef(Subsystem):
     safe_mkdir(vts_results_dir)
 
     all_zef_reqs = []
-    for zef_vt in zef_invalidation_check.all_vts:
+    for zef_vt in invalidation_check.all_vts:
       all_zef_reqs.extend(zef_vt.target.requirements)
     install_request = self.ZefInstallRequest(
       zef_requirements=all_zef_reqs,
@@ -105,15 +120,17 @@ class Zef(Subsystem):
 
     return install_result
 
-  def _run_zef_command(self, workunit_factory, workunit_name, argv):
-    tool_path_env_var = create_path_env_var(self.path_entries)
+  def _run_zef_command(self, workunit_factory, argv):
+    subproc_env = os.environ.copy()
+    subproc_env['PATH'] = create_path_env_var(self.path_entries, subproc_env, prepend=True)
+
     all_argv = ['zef'] + argv
     pretty_printed_argv = safe_shlex_join(all_argv)
     try:
       with workunit_factory() as workunit:
         return subprocess.check_call(
           all_argv,
-          env={'PATH': tool_path_env_var},
+          env=subproc_env,
           stdout=workunit.output('stdout'),
           stderr=workunit.output('stderr'))
     except (OSError, subprocess.CalledProcessError) as e:
@@ -124,7 +141,7 @@ class Zef(Subsystem):
 
   def _install_requirements(self, install_request, workunit_factory):
     # NB: See https://github.com/ugexe/zef for more info.
-    identities = [req.zef_identity_spec for req in zef_requirements]
+    identities = [req.zef_identity_spec for req in install_request.zef_requirements]
     install_spec = install_request.as_install_spec
     # Raise on nonzero exit.
     self._run_zef_command(workunit_factory, [

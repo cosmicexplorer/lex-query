@@ -54,4 +54,5 @@ class ZefResolve(Task):
         except Zef.ZefException as e:
           raise self.ZefResolveError(
             "Error resolving zef req libs: {}".format(e),
-            e)
+            e,
+            exit_code=e.exit_code)

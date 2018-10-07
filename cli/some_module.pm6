@@ -1,5 +1,3 @@
-use CSV::Parser;
-
 class Foo {
   sub zape () { say "zipi" }
   class Bar {

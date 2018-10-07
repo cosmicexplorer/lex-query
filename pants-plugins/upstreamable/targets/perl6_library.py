@@ -22,7 +22,6 @@ class Perl6Library(Target):
                payload=None,
                sources=None,
                **kwargs):
-
     payload = payload or Payload()
     payload.add_fields({
       'sources': self.create_sources_field(sources, address.spec_path, key_arg='sources'),

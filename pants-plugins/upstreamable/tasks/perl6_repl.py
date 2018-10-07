@@ -62,4 +62,4 @@ class Perl6Repl(ReplTaskMixin):
 
     with signal_handler_as(signal.SIGINT, ignore_control_c):
       # When called with no arguments, drops into a repl.
-      return self._perl6.invoke_perl6_synchronously([], perl6_env)
+      return self._perl6.invoke_perl6([], perl6_env)

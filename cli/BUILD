@@ -3,3 +3,11 @@ perl6_library(
     '3rdparty/perl6:csv-parser',
   ],
 )
+
+perl6_binary(
+  name='bin',
+  dependencies=[
+    ':cli',
+  ],
+  script='run.p6',
+)

@@ -28,7 +28,11 @@ class Zef(Script):
 
   default_version = '0.5.3'
 
-  class ZefException(Exception): pass
+  class ZefException(Exception):
+
+    def __init__(self, msg, exit_code=None, *args, **kwargs):
+      self.exit_code = exit_code
+      super(Zef.ZefException, self).__init__(msg, *args, **kwargs)
 
   @classmethod
   def subsystem_dependencies(cls):
@@ -127,7 +131,7 @@ class Zef(Script):
     pretty_printed_argv = safe_shlex_join(all_argv)
     try:
       if workunit_factory:
-        with workunit_factory() as workunit:
+        with workunit_factory(cmdline=pretty_printed_argv) as workunit:
           return subprocess.check_call(
             all_argv,
             env=subproc_env,
@@ -139,9 +143,9 @@ class Zef(Script):
                      .format(all_argv, subproc_env, output))
     except (OSError, subprocess.CalledProcessError) as e:
       raise self.ZefException(
-        "Error with zef command '{}': {}"
-        .format(pretty_printed_argv, e),
-        e)
+        "Error with zef command '{}': {}".format(pretty_printed_argv, e),
+        e,
+        exit_code=e.returncode)
 
   def install_requirements(self, install_request, workunit_factory=None):
     # NB: See https://github.com/ugexe/zef for more info.

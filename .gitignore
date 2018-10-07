@@ -3,3 +3,4 @@
 /.pids/
 /.pants.workdir.file_lock
 *.pyc
+.precomp/

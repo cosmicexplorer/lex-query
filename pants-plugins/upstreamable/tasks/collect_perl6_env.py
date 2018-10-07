@@ -30,11 +30,15 @@ class CollectPerl6Env(Task):
 
   class Perl6Env(datatype([
       ('source_lib_entries', GatherPerl6SourceLibEntries.Entries),
-      ('zef_resolve_result', Exactly(Zef.ZefInstallResult, type(None))),
-  ])): pass
+      ('zef_resolve_results', tuple),
+  ])):
+
+    def add_install_result(self, install_result):
+      assert(isinstance(install_result, Zef.ZefInstallResult))
+      return self.copy(zef_resolve_results=self.zef_resolve_results + (install_result,))
 
   def execute(self):
     env = self.Perl6Env(
       source_lib_entries=self.context.products.get_data(GatherPerl6SourceLibEntries.Entries),
-      zef_resolve_result=self.context.products.get_data(Zef.ZefInstallResult))
+      zef_resolve_results=(self.context.products.get_data(Zef.ZefInstallResult),))
     self.context.products.register_data(self.Perl6Env, env)

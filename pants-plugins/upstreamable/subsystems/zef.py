@@ -16,8 +16,9 @@ from pants.util.process_handler import subprocess
 from pants.util.strutil import create_path_env_var, safe_shlex_join
 from upstreamable.subsystems.rakudo_moar import RakudoMoar
 from upstreamable.subsystems.rakudobrew import Rakudobrew
+from upstreamable.subsystems.virtual_script_tool import VirtualScriptTool
 from upstreamable.targets.zef_requirement_library import \
-    PERL6_INSTALL_DIR_PREFIX
+    PERL6_INSTALL_DIR_PREFIX, ZefRequirement
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +112,7 @@ class Zef(Script):
       into_dir=vts_results_dir)
 
     if invalidation_check.invalid_vts or not resolve_vts.valid:
-      install_result = self._install_requirements(install_request, workunit_factory)
+      install_result = self.install_requirements(install_request, workunit_factory=workunit_factory)
     else:
       # No-op -- we have a (hopefully) well-formed install dir at this location already.
       install_result = self.ZefInstallResult(install_request.as_install_spec)
@@ -125,19 +126,24 @@ class Zef(Script):
     all_argv = ['zef'] + argv
     pretty_printed_argv = safe_shlex_join(all_argv)
     try:
-      with workunit_factory() as workunit:
-        return subprocess.check_call(
-          all_argv,
-          env=subproc_env,
-          stdout=workunit.output('stdout'),
-          stderr=workunit.output('stderr'))
+      if workunit_factory:
+        with workunit_factory() as workunit:
+          return subprocess.check_call(
+            all_argv,
+            env=subproc_env,
+            stdout=workunit.output('stdout'),
+            stderr=workunit.output('stderr'))
+      else:
+        output = subprocess.check_output(all_argv, env=subproc_env)
+        logger.debug("output from running zef command {!r} with env {!r}:\n{}"
+                     .format(all_argv, subproc_env, output))
     except (OSError, subprocess.CalledProcessError) as e:
       raise self.ZefException(
         "Error with zef command '{}': {}"
         .format(pretty_printed_argv, e),
         e)
 
-  def _install_requirements(self, install_request, workunit_factory):
+  def install_requirements(self, install_request, workunit_factory=None):
     # NB: See https://github.com/ugexe/zef for more info.
     identities = [req.zef_identity_spec for req in install_request.zef_requirements]
     install_spec = install_request.as_install_spec
@@ -149,3 +155,41 @@ class Zef(Script):
     ] + identities)
 
     return self.ZefInstallResult(install_spec)
+
+
+class ZefReplBootstrap(VirtualScriptTool):
+  options_scope = 'zef-repl-bootstrap'
+
+  # This is used as the version for the zef Readline package.
+  default_version = '0.1.4'
+
+  @memoized_property
+  def _requirements(self):
+    return [ZefRequirement('Readline', self.version())]
+
+  @classmethod
+  def subsystem_dependencies(cls):
+    return super(ZefReplBootstrap, cls).subsystem_dependencies() + (Zef.scoped(cls),)
+
+  @memoized_property
+  def _zef(self):
+    return Zef.scoped_instance(self)
+
+  @memoized_method
+  def _install_bootstrap_requirements(self):
+    download_path = self.safe_get_download_dir_path()
+    install_request = Zef.ZefInstallRequest(
+      zef_requirements=self._requirements,
+      into_dir=download_path)
+    install_result = self._zef.install_requirements(install_request)
+    return (install_result, download_path)
+
+  @memoized_property
+  def install_result_for_repl_bootstrap(self):
+    install_result, _ = self._install_bootstrap_requirements()
+    return install_result
+
+  @memoized_method
+  def select(self, *args, **kwargs):
+    _, download_path = self._install_bootstrap_requirements()
+    return download_path

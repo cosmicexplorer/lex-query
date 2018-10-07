@@ -25,16 +25,12 @@ class Perl6(Subsystem):
   PERL6LIB_SEP = ','
 
   def _get_perl6_subproc_os_env(self, perl6_env):
-    # NB: These are assumed to have been de-duped.
+    # NB: These source file containing directory paths are assumed to have been de-duped.
     source_lib_containing_dirs = list(perl6_env.source_lib_entries.containing_lib_dirs)
-    # If no zef resolve occurred, this will be None.
-    if perl6_env.zef_resolve_result:
-      # NB: put the thirdparty resolve at the end.
-      zef_specs = source_lib_containing_dirs + [perl6_env.zef_resolve_result.install_spec]
-    else:
-      zef_specs = []
+    zef_install_specs = [r.install_spec for r in perl6_env.zef_resolve_results]
 
-    all_lib_entries = source_lib_containing_dirs + zef_specs
+    # NB: put the thirdparty resolve at the end.
+    all_lib_entries = source_lib_containing_dirs + zef_install_specs
     perl6lib_joined = ensure_binary(self.PERL6LIB_SEP.join(map(ensure_binary, all_lib_entries)))
 
     full_path_var = create_path_env_var(self._rakudo_moar.path_entries, os.environ.copy(),

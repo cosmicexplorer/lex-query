@@ -10,7 +10,7 @@ from pants.util.memo import memoized_property
 from pants.util.objects import Exactly
 from pants.util.process_handler import subprocess
 from upstreamable.subsystems.perl6 import Perl6
-from upstreamable.subsystems.zef import Zef
+from upstreamable.subsystems.zef import Zef, ZefReplBootstrap
 from upstreamable.targets.perl6_library import Perl6Library
 from upstreamable.targets.zef_requirement_library import (ZefRequirement,
                                                           ZefRequirementLibrary)
@@ -21,11 +21,18 @@ class Perl6Repl(ReplTaskMixin):
 
   @classmethod
   def subsystem_dependencies(cls):
-    return super(Perl6Repl, cls).subsystem_dependencies() + (Perl6.scoped(cls),)
+    return super(Perl6Repl, cls).subsystem_dependencies() + (
+      Perl6.scoped(cls),
+      ZefReplBootstrap.scoped(cls),
+    )
 
   @memoized_property
   def _perl6(self):
     return Perl6.scoped_instance(self)
+
+  @memoized_property
+  def _repl_bootstrap(self):
+    return ZefReplBootstrap.scoped_instance(self)
 
   source_target_constraint = Exactly(Perl6Library, Zef.ZefInstallResult)
 
@@ -42,7 +49,11 @@ class Perl6Repl(ReplTaskMixin):
 
   def setup_repl_session(self, targets):
     # NB: `targets` is unused, as it is just for the purposes of MutexTaskMixin.
-    return self.context.products.get_data(CollectPerl6Env.Perl6Env)
+    perl6_env = self.context.products.get_data(CollectPerl6Env.Perl6Env)
+    all_zef_resolves = perl6_env.zef_resolve_results + (
+      self._repl_bootstrap.install_result_for_repl_bootstrap,
+    )
+    return perl6_env.copy(zef_resolve_results=all_zef_resolves)
 
   def launch_repl(self, perl6_env):
     # TODO: this is a massive hack that should be removed from python_repl.py (this is the leading

@@ -28,11 +28,11 @@ class ZefRequirement(datatype([
     return 'zef_requirement'
 
   # TODO: this will reject many legal module names!
-  _allowed_module_name_pattern = re.compile(r'\A([a-zA-Z]+)::([a-zA-Z]+)\Z')
+  _allowed_module_name_pattern = re.compile(r'\A([a-zA-Z]+)(::([a-zA-Z]+))*\Z')
 
   def __new__(cls, module_name, version_spec=None):
     if not cls._allowed_module_name_pattern.match(module_name):
-      raise self.make_type_error("invalid Zef module name '{}': must match '{}'."
+      raise cls.make_type_error("invalid Zef module name '{}': must match '{}'."
                                  .format(module_name, cls._allowed_module_name_pattern.pattern))
     else:
       module_name = text_type(module_name)

@@ -13,11 +13,12 @@ from pants.util.memo import memoized_method, memoized_property
 from pants.util.process_handler import subprocess
 from pants.util.strutil import create_path_env_var, safe_shlex_join
 from upstreamable.subsystems.perl5 import Perl5
+from upstreamable.subsystems.virtual_script_tool import VirtualScriptTool
 
 logger = logging.getLogger(__name__)
 
 
-class Rakudobrew(Script):
+class Rakudobrew(VirtualScriptTool):
   options_scope = 'rakudobrew'
 
   default_version = 'bdd060c8886da6049f87ea30fdc01dc457747a18'
@@ -87,7 +88,7 @@ class Rakudobrew(Script):
   @memoized_method
   def select(self, *args, **kwargs):
     """Returns a directory which can be added to the PATH to use the rakudobrew tools."""
-    download_path = self._safe_get_download_dir_path()
+    download_path = self.safe_get_download_dir_path()
     # If the directory is empty, clone into it (this is allowed for empty existing
     # directories). Otherwise, assume the clone was already performed.
     if len(os.listdir(download_path)) == 0:
@@ -106,19 +107,3 @@ class Rakudobrew(Script):
         "Error checking out revision '{}' from {}: {}"
         .format(desired_sha, self._GIT_CLONE_HTTPS_URL, e),
         e)
-
-  @memoized_method
-  def _safe_get_download_dir_path(self):
-    """Ensures the directory exists for the current version before returning its path."""
-    version = self.version()
-    binary_request = self._make_binary_request(version)
-    host_platform = self._binary_util._host_platform()
-    # Because archive_type=None, this will be a path to a file, but we are going to be cloning into
-    # a directory.
-    fake_file_download_relpath = binary_request.get_download_path(host_platform)
-    dir_download_relpath = os.path.dirname(fake_file_download_relpath)
-
-    bootstrap_dir = os.path.realpath(os.path.expanduser(self.get_options().pants_bootstrapdir))
-    full_download_dir_path = os.path.join(bootstrap_dir, dir_download_relpath)
-    safe_mkdir(full_download_dir_path)
-    return full_download_dir_path

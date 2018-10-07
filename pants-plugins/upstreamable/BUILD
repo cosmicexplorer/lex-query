@@ -1,7 +1,7 @@
 python_library(
   name='plugin',
   dependencies=[
-    'pants-plugins/upstreamable/3rdparty:pants',
+    '3rdparty/py:pants',
     'pants-plugins/upstreamable/subsystems',
     'pants-plugins/upstreamable/targets',
     'pants-plugins/upstreamable/tasks',

@@ -1,8 +1,8 @@
 python_library(
   dependencies=[
-    'pants-plugins/upstreamable/3rdparty:future',
-    'pants-plugins/upstreamable/3rdparty:pants',
-    'pants-plugins/upstreamable/3rdparty:twitter.common.collections',
+    '3rdparty/py:future',
+    '3rdparty/py:pants',
+    '3rdparty/py:twitter.common.collections',
     'pants-plugins/upstreamable/targets',
   ],
 )

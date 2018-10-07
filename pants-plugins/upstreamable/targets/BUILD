@@ -1,6 +1,6 @@
 python_library(
   dependencies=[
-    'pants-plugins/upstreamable/3rdparty:future',
-    'pants-plugins/upstreamable/3rdparty:pants',
+    '3rdparty/py:future',
+    '3rdparty/py:pants',
   ],
 )

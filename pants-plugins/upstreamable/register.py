@@ -3,11 +3,12 @@ from __future__ import (absolute_import, division, generators, nested_scopes,
 
 from pants.build_graph.build_file_aliases import BuildFileAliases
 from pants.goal.task_registrar import TaskRegistrar as task
-
 from upstreamable.targets.perl6_library import Perl6Library
-from upstreamable.targets.zef_requirement_library import ZefRequirement, ZefRequirementLibrary
+from upstreamable.targets.zef_requirement_library import (ZefRequirement,
+                                                          ZefRequirementLibrary)
 from upstreamable.tasks.collect_perl6_env import CollectPerl6Env
-from upstreamable.tasks.gather_perl6_source_lib_entries import GatherPerl6SourceLibEntries
+from upstreamable.tasks.gather_perl6_source_lib_entries import \
+    GatherPerl6SourceLibEntries
 from upstreamable.tasks.perl6_repl import Perl6Repl
 from upstreamable.tasks.zef_resolve import ZefResolve
 

@@ -7,7 +7,6 @@ from pants.subsystem.subsystem import Subsystem
 from pants.util.memo import memoized_property
 from pants.util.process_handler import subprocess
 from pants.util.strutil import create_path_env_var, ensure_binary
-
 from upstreamable.subsystems.rakudo_moar import RakudoMoar
 
 

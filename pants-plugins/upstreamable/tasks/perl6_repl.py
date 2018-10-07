@@ -9,11 +9,11 @@ from pants.util.contextutil import signal_handler_as
 from pants.util.memo import memoized_property
 from pants.util.objects import Exactly
 from pants.util.process_handler import subprocess
-
 from upstreamable.subsystems.perl6 import Perl6
 from upstreamable.subsystems.zef import Zef
 from upstreamable.targets.perl6_library import Perl6Library
-from upstreamable.targets.zef_requirement_library import ZefRequirement, ZefRequirementLibrary
+from upstreamable.targets.zef_requirement_library import (ZefRequirement,
+                                                          ZefRequirementLibrary)
 from upstreamable.tasks.collect_perl6_env import CollectPerl6Env
 
 

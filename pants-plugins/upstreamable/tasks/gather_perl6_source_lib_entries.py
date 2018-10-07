@@ -3,15 +3,14 @@ from __future__ import (absolute_import, division, generators, nested_scopes,
 
 import os
 
-from twitter.common.collections import OrderedSet
-
 from pants.base.build_environment import get_buildroot
 from pants.base.exceptions import TaskError
 from pants.task.task import Task
 from pants.util.objects import Exactly, datatype
-
+from twitter.common.collections import OrderedSet
 from upstreamable.targets.perl6_library import Perl6Library
-from upstreamable.targets.zef_requirement_library import PERL6_INSTALL_DIR_PREFIX
+from upstreamable.targets.zef_requirement_library import \
+    PERL6_INSTALL_DIR_PREFIX
 
 
 class GatherPerl6SourceLibEntries(Task):

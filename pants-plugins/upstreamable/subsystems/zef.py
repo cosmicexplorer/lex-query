@@ -5,7 +5,6 @@ import logging
 import os
 
 from future.utils import binary_type
-
 from pants.base.workunit import WorkUnitLabel
 from pants.binaries.binary_tool import Script
 from pants.invalidation.cache_manager import VersionedTargetSet
@@ -15,11 +14,10 @@ from pants.util.memo import memoized_method, memoized_property
 from pants.util.objects import datatype
 from pants.util.process_handler import subprocess
 from pants.util.strutil import create_path_env_var, safe_shlex_join
-
 from upstreamable.subsystems.rakudo_moar import RakudoMoar
 from upstreamable.subsystems.rakudobrew import Rakudobrew
-from upstreamable.targets.zef_requirement_library import PERL6_INSTALL_DIR_PREFIX
-
+from upstreamable.targets.zef_requirement_library import \
+    PERL6_INSTALL_DIR_PREFIX
 
 logger = logging.getLogger(__name__)
 

@@ -10,7 +10,6 @@ from pants.task.task import Task
 from pants.util.dirutil import safe_mkdir
 from pants.util.memo import memoized_property
 from pants.util.objects import Exactly
-
 from upstreamable.subsystems.zef import Zef
 from upstreamable.targets.zef_requirement_library import ZefRequirementLibrary
 

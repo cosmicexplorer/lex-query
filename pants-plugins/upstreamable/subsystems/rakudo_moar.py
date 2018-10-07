@@ -6,7 +6,6 @@ import os
 from pants.binaries.binary_tool import NativeTool
 from pants.util.dirutil import is_readable_dir
 from pants.util.memo import memoized_method, memoized_property
-
 from upstreamable.subsystems.rakudobrew import Rakudobrew
 
 

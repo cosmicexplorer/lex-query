@@ -12,9 +12,7 @@ from pants.util.dirutil import is_readable_dir, safe_mkdir
 from pants.util.memo import memoized_method, memoized_property
 from pants.util.process_handler import subprocess
 from pants.util.strutil import create_path_env_var, safe_shlex_join
-
 from upstreamable.subsystems.perl5 import Perl5
-
 
 logger = logging.getLogger(__name__)
 

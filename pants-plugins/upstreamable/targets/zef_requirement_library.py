@@ -2,11 +2,9 @@ from __future__ import (absolute_import, division, generators, nested_scopes,
                         print_function, unicode_literals, with_statement)
 
 import re
-
 from builtins import object
 
 from future.utils import text_type
-
 from pants.base.exceptions import TargetDefinitionException
 from pants.base.hash_utils import stable_json_hash
 from pants.base.payload import Payload
@@ -15,7 +13,6 @@ from pants.base.validation import assert_list
 from pants.build_graph.target import Target
 from pants.util.memo import memoized_property
 from pants.util.objects import Exactly, datatype
-
 
 # TODO: document this
 PERL6_INSTALL_DIR_PREFIX = 'inst#'

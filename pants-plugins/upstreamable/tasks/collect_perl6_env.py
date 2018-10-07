@@ -8,11 +8,11 @@ from pants.util.memo import memoized_method, memoized_property
 from pants.util.objects import Exactly, datatype
 from pants.util.process_handler import subprocess
 from pants.util.strutil import ensure_binary
-
 from upstreamable.subsystems.zef import Zef
 from upstreamable.targets.perl6_library import Perl6Library
 from upstreamable.targets.zef_requirement_library import ZefRequirementLibrary
-from upstreamable.tasks.gather_perl6_source_lib_entries import GatherPerl6SourceLibEntries
+from upstreamable.tasks.gather_perl6_source_lib_entries import \
+    GatherPerl6SourceLibEntries
 from upstreamable.tasks.zef_resolve import ZefResolve
 
 

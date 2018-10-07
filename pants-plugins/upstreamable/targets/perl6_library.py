@@ -11,7 +11,7 @@ from pants.util.memo import memoized_property
 
 class Perl6Library(Target):
 
-  default_sources_globs = '*.p6'
+  default_sources_globs = '*.pm6'
 
   @classmethod
   def alias(cls):

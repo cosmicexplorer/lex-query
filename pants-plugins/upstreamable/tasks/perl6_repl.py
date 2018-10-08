@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, generators, nested_scopes,
 import os
 import signal
 
+from pants.base.exceptions import TaskError
 from pants.task.repl_task_mixin import ReplTaskMixin
 from pants.util.contextutil import signal_handler_as
 from pants.util.memo import memoized_property
@@ -18,6 +19,8 @@ from upstreamable.tasks.collect_perl6_env import CollectPerl6Env
 
 
 class Perl6Repl(ReplTaskMixin):
+
+  class Perl6ReplError(TaskError): pass
 
   @classmethod
   def subsystem_dependencies(cls):
@@ -61,5 +64,11 @@ class Perl6Repl(ReplTaskMixin):
     def ignore_control_c(signum, frame): pass
 
     with signal_handler_as(signal.SIGINT, ignore_control_c):
-      # When called with no arguments, drops into a repl.
-      return self._perl6.invoke_perl6([], perl6_env)
+      try:
+        # When called with no arguments, drops into a repl.
+        return self._perl6.invoke_perl6([], perl6_env)
+      except Perl6.Perl6InvocationError as e:
+        raise self.Perl6ReplError(
+          "Error in the perl6 repl: {}".format(e),
+          e,
+          exit_code=e.exit_code)

@@ -63,6 +63,7 @@ class Perl6(Subsystem):
 
     pretty_printed_argv = safe_shlex_join(full_argv)
     try:
+      logger.debug('running perl6 comand {!r} with env {!r}'.format(full_argv, subproc_env))
       if workunit_factory:
         with workunit_factory(cmd=pretty_printed_argv) as workunit:
           # TODO: should we be catching KeyboardInterrupt or something?
@@ -72,9 +73,7 @@ class Perl6(Subsystem):
             stdout=workunit.output('stdout'),
             stderr=workunit.output('stderr'))
       else:
-        output = subprocess.check_output(full_argv, env=subproc_env)
-        logger.debug("output from running perl6 command {!r} with env {!r}:\n{}"
-                     .format(full_argv, subproc_env, output))
+        return subprocess.check_call(full_argv, env=subproc_env)
     except (OSError, subprocess.CalledProcessError) as e:
       raise self.Perl6InvocationError(
         "Error with perl6 command '{}': {}".format(pretty_printed_argv, e),

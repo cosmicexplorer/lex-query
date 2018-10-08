@@ -6,7 +6,7 @@ import os
 
 from future.utils import binary_type
 from pants.base.workunit import WorkUnitLabel
-from pants.binaries.binary_tool import Script
+from pants.binaries.binary_tool import BinaryToolBase, Script
 from pants.invalidation.cache_manager import VersionedTargetSet
 from pants.subsystem.subsystem import Subsystem
 from pants.util.dirutil import is_writable_dir, safe_mkdir
@@ -26,7 +26,10 @@ logger = logging.getLogger(__name__)
 class Zef(Script):
   options_scope = 'zef'
 
-  default_version = '0.5.3'
+  @classmethod
+  def register_options(cls, register):
+    # NB: We don't use any of the options that BinaryToolBase does, so we bypass them all here.
+    super(BinaryToolBase, cls).register_options(register)
 
   class ZefException(Exception):
 
@@ -131,7 +134,7 @@ class Zef(Script):
     pretty_printed_argv = safe_shlex_join(all_argv)
     try:
       if workunit_factory:
-        with workunit_factory(cmdline=pretty_printed_argv) as workunit:
+        with workunit_factory(cmd=pretty_printed_argv) as workunit:
           return subprocess.check_call(
             all_argv,
             env=subproc_env,

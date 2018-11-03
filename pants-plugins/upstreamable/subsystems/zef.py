@@ -9,7 +9,7 @@ from pants.base.workunit import WorkUnitLabel
 from pants.binaries.binary_tool import BinaryToolBase, Script
 from pants.invalidation.cache_manager import VersionedTargetSet
 from pants.subsystem.subsystem import Subsystem
-from pants.util.dirutil import is_writable_dir, safe_mkdir
+from pants.util.dirutil import is_readable_dir, safe_mkdir
 from pants.util.memo import memoized_method, memoized_property
 from pants.util.objects import datatype
 from pants.util.process_handler import subprocess
@@ -80,7 +80,7 @@ class Zef(Script):
           "Error: no zef requirements were provided to install into dir '{}'."
           .format(into_dir))
 
-      if not is_writable_dir(into_dir):
+      if not is_readable_dir(into_dir) and os.access(into_dir, os.W_OK):
         raise self.make_type_error(
           "Error: provided directory path '{}' does not exist or is not writable."
           .format(into_dir))

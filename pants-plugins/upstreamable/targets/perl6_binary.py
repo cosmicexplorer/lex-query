@@ -7,7 +7,6 @@ from pants.base.exceptions import TargetDefinitionException
 from pants.base.payload import Payload
 from pants.build_graph.target import Target
 from pants.engine.legacy.structs import BaseGlobs
-from pants.option.custom_types import GlobExpansionConjunction
 from pants.source.payload_fields import SourcesField
 from pants.source.wrapped_globs import LazyFilesetWithSpec
 from pants.util.collections import assert_single_element

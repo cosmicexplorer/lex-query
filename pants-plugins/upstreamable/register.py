@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, generators, nested_scopes,
 
 from pants.build_graph.build_file_aliases import BuildFileAliases
 from pants.goal.task_registrar import TaskRegistrar as task
+from upstreamable.targets.pants_all_requirements import PantsAllRequirements
 from upstreamable.targets.perl6_binary import Perl6Binary
 from upstreamable.targets.perl6_library import Perl6Library
 from upstreamable.targets.zef_requirement_library import (ZefRequirement,
@@ -17,6 +18,9 @@ from upstreamable.tasks.zef_resolve import ZefResolve
 
 def build_file_aliases():
   return BuildFileAliases(
+    context_aware_object_factories={
+      PantsAllRequirements.alias: PantsAllRequirements,
+    },
     objects={
       ZefRequirement.alias(): ZefRequirement,
     },

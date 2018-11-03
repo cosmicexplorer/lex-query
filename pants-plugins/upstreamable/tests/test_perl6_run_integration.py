@@ -9,13 +9,13 @@ class TestPerl6RunIntegrationTest(PantsRunIntegrationTest):
   _p6_run_target = 'pants-plugins/upstreamable/tests:perl6-test-bin'
 
   def test_perl6_run(self):
-    pants_run = self.run_pants(['-q', 'run', self._p6_run_target])
+    pants_run = self.run_pants(['run', self._p6_run_target])
     self.assert_success(pants_run)
-    self.assertEqual(pants_run.stdout_data, """\
+    self.assertIn("""\
 (Parser)
 (Foo)
 hey
 file.dat
 24
 False
-""")
+""", pants_run.stdout_data)

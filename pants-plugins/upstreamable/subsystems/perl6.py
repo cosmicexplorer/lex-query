@@ -7,9 +7,9 @@ import os
 from pants.subsystem.subsystem import Subsystem
 from pants.util.memo import memoized_property
 from pants.util.process_handler import subprocess
-from pants.util.strutil import create_path_env_var, ensure_binary, safe_shlex_join
+from pants.util.strutil import (create_path_env_var, ensure_binary,
+                                safe_shlex_join)
 from upstreamable.subsystems.rakudo_moar import RakudoMoar
-
 
 logger = logging.getLogger(__name__)
 

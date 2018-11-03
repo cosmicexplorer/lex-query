@@ -17,8 +17,8 @@ from pants.util.strutil import create_path_env_var, safe_shlex_join
 from upstreamable.subsystems.rakudo_moar import RakudoMoar
 from upstreamable.subsystems.rakudobrew import Rakudobrew
 from upstreamable.subsystems.virtual_script_tool import VirtualScriptTool
-from upstreamable.targets.zef_requirement_library import \
-    PERL6_INSTALL_DIR_PREFIX, ZefRequirement
+from upstreamable.targets.zef_requirement_library import (PERL6_INSTALL_DIR_PREFIX,
+                                                          ZefRequirement)
 
 logger = logging.getLogger(__name__)
 
